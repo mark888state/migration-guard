@@ -70,3 +70,5 @@ export function analyze(sql, file = '<input>', options = {}) {
 }
 
 export const ruleCatalog = rules.map(([code, title, fix]) => ({ code, title, fix }));
+
+// ruleset rev 13

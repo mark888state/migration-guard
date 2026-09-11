@@ -21,7 +21,6 @@ const rule = (code, file, line, detail = '') => {
   const [, title, fix] = rules.find(item => item[0] === code);
   return { rule: code, title, file, line, detail, fix };
 };
-
 export function analyze(sql, file = '<input>', options = {}) {
   const major = Number(options.postgresMajor ?? 14);
   const parsed = splitStatements(sql).map(parseStatement);
@@ -68,7 +67,8 @@ export function analyze(sql, file = '<input>', options = {}) {
   }
   return findings;
 }
-
 export const ruleCatalog = rules.map(([code, title, fix]) => ({ code, title, fix }));
 
 // ruleset rev 13
+
+// ruleset rev 14

@@ -166,3 +166,5 @@ export const ruleCatalog = rules.map(([code, title, fix]) => ({ code, title, fix
 // ruleset rev 60
 
 // ruleset rev 61
+
+// ruleset rev 62

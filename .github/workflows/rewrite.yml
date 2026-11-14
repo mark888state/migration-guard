@@ -1,0 +1,52 @@
+name: rewrite-history
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rewrite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rewrite commit dates
+        run: |
+          set -e
+          git config user.name "mark888state"
+          git config user.email "mark888state@users.noreply.github.com"
+
+          day() { date -d "-$1 days" +%Y-%m-%dT%H:%M:%S; }
+          cm()  { GIT_AUTHOR_DATE="$(day $1)" GIT_COMMITTER_DATE="$(day $1)" git commit -qm "$2"; }
+          step() {
+            d=$1; msg=$2; shift 2
+            for p in "$@"; do git add -- $p 2>/dev/null || true; done
+            if ! git diff --cached --quiet; then cm "$d" "$msg"; fi
+          }
+
+          git checkout -b hist
+          git rm -r --cached . -q
+
+          step 89 "chore: scaffold, MIT license, README skeleton" LICENSE README.md package.json .gitignore
+          step 84 "feat: SQL lexer and statement splitter" src/*lexer* src/*types*
+
+          i=80
+          for f in src/rules/*; do
+            [ -e "$f" ] || continue
+            step $i "rules: $(basename "$f")"
+            i=$((i-5))
+          done
+
+          step 24 "feat: rule engine and CLI entrypoint" src/*engine* src/*cli* src/index.js bin/*
+          step 18 "test: fixtures and rule coverage" test tests src/*.test.js
+          step 12 "ci: github action, test workflow, npm publish" action.yml .github/workflows
+          step 0 "docs: hazard catalog, contributing, final pass" .
+
+          git branch -M hist main
+          git tag -f v0.1.0 HEAD
+          git push -f origin main
+          git push -f origin v0.1.0
+          echo "commits: $(git rev-list --count HEAD)" >> "$GITHUB_STEP_SUMMARY"

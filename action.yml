@@ -1,0 +1,25 @@
+name: PostgreSQL Migration Guard
+description: Fail CI when SQL migrations contain risky PostgreSQL DDL patterns.
+author: mark888state
+inputs:
+  path:
+    description: Directory containing SQL migration files.
+    required: false
+    default: migrations
+  postgres-major:
+    description: Target PostgreSQL major version (constant ADD COLUMN DEFAULT is fast from 11 onward).
+    required: false
+    default: '14'
+  large-tables:
+    description: Optional comma-separated table names for pre-11 default rewrite checks.
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        POSTGRES_MAJOR: ${{ inputs.postgres-major }}
+        LARGE_TABLES: ${{ inputs.large-tables }}
+      run: node "$GITHUB_ACTION_PATH/src/cli.js" --path "$INPUT_PATH" --postgres-major "$POSTGRES_MAJOR" --large-tables "$LARGE_TABLES"

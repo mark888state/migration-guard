@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: mark888state/migration-guard@v0.1.5
+      - uses: mark888state/migration-guard@v0.1.6
         with:
           path: db/migrations
           postgres-major: '14'
@@ -72,7 +72,7 @@ Rules are intentionally conservative. Review findings in the context of table si
 
 ## Configuration
 
-The target major version can be set on the command line or via the action input. For PostgreSQL 11+, a constant `ADD COLUMN ... DEFAULT <constant>` is metadata-only; volatile defaults can still require evaluating every row. This checker specifically flags volatile expressions such as `clock_timestamp()`, `random()`, `nextval()`, and `gen_random_uuid()`.
+JSON output includes a total count and per-rule finding counts. The target major version can be set on the command line or via the action input. For PostgreSQL 11+, a constant `ADD COLUMN ... DEFAULT <constant>` is metadata-only; volatile defaults can still require evaluating every row. This checker specifically flags volatile expressions such as `clock_timestamp()`, `random()`, `nextval()`, and `gen_random_uuid()`.
 
 Example JSON output:
 

@@ -89,3 +89,12 @@ test('--version prints package.json version without scanning migrations', () => 
   assert.equal(result.status, 0);
   assert.equal(result.stdout.trim(), pkg.version);
 });
+
+test('summarizes findings by rule for structured output', async () => {
+  const { summarizeFindings } = await import('../src/summary.js');
+  const summary = summarizeFindings([{ rule: 'MG001' }, { rule: 'MG001' }, { rule: 'MG005' }], ruleCatalog);
+  assert.equal(summary.total, 3);
+  assert.equal(summary.byRule.MG001, 2);
+  assert.equal(summary.byRule.MG005, 1);
+  assert.equal(summary.byRule.MG013, 0);
+});

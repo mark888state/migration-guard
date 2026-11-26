@@ -2,6 +2,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { analyze, ruleCatalog } from './rules.js';
+import { summarizeFindings } from './summary.js';
 
 function args(argv) {
   const out = { path: 'migrations', postgresMajor: 14, largeTables: [], json: false, version: false };
@@ -45,7 +46,7 @@ async function main() {
     const sql = await readFile(file, 'utf8');
     findings.push(...analyze(sql, path.relative(process.cwd(), file), options));
   }
-  if (options.json) console.log(JSON.stringify({ files: files.length, findings }, null, 2));
+  if (options.json) console.log(JSON.stringify({ files: files.length, findings, summary: summarizeFindings(findings, ruleCatalog) }, null, 2));
   else if (!findings.length) console.log(`migration-guard: ${files.length} SQL file(s), no unsafe patterns found.`);
   else {
     for (const f of findings) {

@@ -10,13 +10,13 @@ export function splitStatements(source) {
   for (let i = 0; i < source.length; i++) {
     const c = source[i], n = source[i + 1];
     if (state === 'line') {
-      if (c === '\n') { state = 'normal'; sql += '\n'; line++; }
+      if (c === '\n') { state = 'normal'; sql += '\n'; line++; if (!sql.trim()) startLine = line; }
       continue;
     }
     if (state === 'block') {
       if (c === '/' && n === '*') { blockDepth++; i++; continue; }
       if (c === '*' && n === '/') { if (--blockDepth === 0) state = 'normal'; i++; continue; }
-      if (c === '\n') line++;
+      if (c === '\n') { line++; if (!sql.trim()) startLine = line; }
       continue;
     }
     if (state === 'single' || state === 'double') {
@@ -78,8 +78,8 @@ export function parseStatement(statement) {
   if (alter) return { ...statement, kind: 'alter-table', table: alter[1].replaceAll('"', '').split('.').at(-1).trim(), actions: splitTopLevel(sql.slice(alter[0].length)) };
   const create = sql.match(new RegExp(`^CREATE\\s+(UNIQUE\\s+)?INDEX\\s+(CONCURRENTLY\\s+)?(?:IF\\s+NOT\\s+EXISTS\\s+)?${IDENT}\\s+ON\\s+(${IDENT}(?:\\s*\\.\\s*${IDENT})?)`, 'i'));
   if (create) return { ...statement, kind: 'create-index', concurrent: Boolean(create[2]), unique: Boolean(create[1]), table: create[3].replaceAll('"', '').split('.').at(-1).trim() };
-  const dropIndex = sql.match(/^DROP\\s+INDEX\\s+(CONCURRENTLY\\s+)?/i);
+  const dropIndex = sql.match(/^DROP\s+INDEX\s+(CONCURRENTLY\s+)?/i);
   if (dropIndex) return { ...statement, kind: 'drop-index', concurrent: Boolean(dropIndex[1]) };
-  if (/^DROP\\s+TABLE\\b/i.test(sql)) return { ...statement, kind: 'drop-table' };
+  if (/^DROP\s+TABLE\b/i.test(sql)) return { ...statement, kind: 'drop-table' };
   return { ...statement, kind: 'other' };
 }

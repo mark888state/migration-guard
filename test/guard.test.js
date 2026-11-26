@@ -9,6 +9,10 @@ test('lexer ignores semicolons inside strings, comments and dollar quotes', () =
   const parsed = splitStatements("SELECT ';'; -- ;\n SELECT $$a;b$$; /* ; */ SELECT 3;");
   assert.equal(parsed.length, 3);
 });
+test('tracks line numbers after leading line and nested block comments', () => {
+  assert.equal(splitStatements('-- header\nSELECT 1;')[0].line, 2);
+  assert.equal(splitStatements('/* header\n /* nested */\n */\nSELECT 1;')[0].line, 4);
+});
 test('flags NOT NULL column addition without a default', () => {
   assert.ok(codes('ALTER TABLE users ADD COLUMN email text NOT NULL;').includes('MG001'));
 });

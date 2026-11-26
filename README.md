@@ -19,7 +19,7 @@ npm install --save-dev migration-guard
 npx migration-guard --path ./db/migrations --postgres-major 14
 ```
 
-Node.js 18 or newer. No runtime dependencies.
+Node.js 18 or newer. No runtime dependencies. The package is published to the npm registry from the GitHub release workflow; maintainers must add an `NPM_TOKEN` repository secret with publish permission before running that workflow.
 
 ## GitHub Actions
 
@@ -80,7 +80,7 @@ npx migration-guard --path db/migrations --json
 
 ## Limitations
 
-- This is a lexical DDL guard, not a full PostgreSQL parser. Unsupported or dynamically generated SQL can evade static checks.
+- This is a lexical DDL guard, not a full PostgreSQL grammar. Unsupported or dynamically generated SQL can evade static checks.
 - It cannot infer row counts, indexes, replica lag, lock queues, or concurrent traffic from a SQL file.
 - Multi-step safety checks are file-local and conservative; it does not prove that a backfill ran successfully in an earlier deployment.
 - `CREATE INDEX CONCURRENTLY` and `DROP INDEX CONCURRENTLY` cannot run inside a transaction block; migration tools may need per-migration transaction settings.

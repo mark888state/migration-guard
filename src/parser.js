@@ -72,12 +72,14 @@ export function splitTopLevel(input) {
 }
 
 const IDENT = '(?:"(?:[^"]|"")+"|[A-Za-z_][\\w$]*)';
+const qualifiedName = value => value.replace(/\s*\.\s*/g, '.').trim().replaceAll('"', '');
+
 export function parseStatement(statement) {
   const sql = statement.sql.trim();
   const alter = sql.match(new RegExp(`^ALTER\\s+TABLE\\s+(?:ONLY\\s+)?(?:IF\\s+EXISTS\\s+)?(${IDENT}(?:\\s*\\.\\s*${IDENT})?)\\s+`, 'i'));
-  if (alter) return { ...statement, kind: 'alter-table', table: alter[1].replaceAll('"', '').split('.').at(-1).trim(), actions: splitTopLevel(sql.slice(alter[0].length)) };
+  if (alter) return { ...statement, kind: 'alter-table', table: qualifiedName(alter[1]), actions: splitTopLevel(sql.slice(alter[0].length)) };
   const create = sql.match(new RegExp(`^CREATE\\s+(UNIQUE\\s+)?INDEX\\s+(CONCURRENTLY\\s+)?(?:IF\\s+NOT\\s+EXISTS\\s+)?${IDENT}\\s+ON\\s+(${IDENT}(?:\\s*\\.\\s*${IDENT})?)`, 'i'));
-  if (create) return { ...statement, kind: 'create-index', concurrent: Boolean(create[2]), unique: Boolean(create[1]), table: create[3].replaceAll('"', '').split('.').at(-1).trim() };
+  if (create) return { ...statement, kind: 'create-index', concurrent: Boolean(create[2]), unique: Boolean(create[1]), table: qualifiedName(create[3]) };
   const dropIndex = sql.match(/^DROP\s+INDEX\s+(CONCURRENTLY\s+)?/i);
   if (dropIndex) return { ...statement, kind: 'drop-index', concurrent: Boolean(dropIndex[1]) };
   if (/^DROP\s+TABLE\b/i.test(sql)) return { ...statement, kind: 'drop-table' };

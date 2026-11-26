@@ -68,3 +68,9 @@ test('ADD CONSTRAINT is not mistaken for ADD COLUMN', () => {
 test('supports ADD COLUMN IF NOT EXISTS', () => {
   assert.ok(codes('ALTER TABLE users ADD COLUMN IF NOT EXISTS email text NOT NULL;').includes('MG001'));
 });
+
+test('preserves schema-qualified table names in finding details', () => {
+  const [finding] = analyze('ALTER TABLE public.users ADD COLUMN email text NOT NULL;');
+  assert.equal(finding.detail, 'public.users.email');
+  assert.deepEqual(codes("ALTER TABLE public.users ADD COLUMN status text DEFAULT 'new';", { postgresMajor: 10, largeTables: ['users'] }), ['MG002']);
+});

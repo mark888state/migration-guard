@@ -85,5 +85,6 @@ export function parseStatement(statement) {
   if (/^DROP\s+TABLE\b/i.test(sql)) return { ...statement, kind: 'drop-table' };
   if (/^TRUNCATE\b/i.test(sql)) return { ...statement, kind: 'truncate-table' };
   if (/^DROP\s+SCHEMA\b/i.test(sql)) return { ...statement, kind: 'drop-schema' };
+  if (/^DROP\s+DATABASE\b/i.test(sql)) return { ...statement, kind: 'drop-database' };
   return { ...statement, kind: 'other' };
 }

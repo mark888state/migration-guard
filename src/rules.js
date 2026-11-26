@@ -15,7 +15,8 @@ const rules = [
   ['MG012', 'RENAME COLUMN breaks older application versions', 'Add a new column, dual-write, backfill, switch reads, then remove the old column.'],
   ['MG013', 'DROP TABLE is destructive and blocks old application versions', 'Use an expand/contract rollout and drop only after all consumers are upgraded.'],
   ['MG014', 'TRUNCATE removes every row from a table', 'Treat TRUNCATE as a destructive data operation; require an explicit backup and rollout review.'],
-  ['MG015', 'DROP SCHEMA removes a schema and may remove dependent objects', 'Audit schema dependencies and require a separately reviewed destructive rollout.']
+  ['MG015', 'DROP SCHEMA removes a schema and may remove dependent objects', 'Audit schema dependencies and require a separately reviewed destructive rollout.'],
+  ['MG016', 'DROP DATABASE destroys the entire database', 'Do not run from an application migration; require a separate, explicitly approved database decommission plan.']
 ];
 const volatile = /\b(?:clock_timestamp|timeofday|random|nextval|gen_random_uuid|uuid_generate_v[1-7])\s*\(/i;
 const id = value => value?.replaceAll('"', '').toLowerCase();
@@ -70,6 +71,7 @@ export function analyze(sql, file = '<input>', options = {}) {
     if (s.kind === 'drop-table') findings.push(rule('MG013', file, s.line, s.sql));
     if (s.kind === 'truncate-table') findings.push(rule('MG014', file, s.line, s.sql));
     if (s.kind === 'drop-schema') findings.push(rule('MG015', file, s.line, s.sql));
+    if (s.kind === 'drop-database') findings.push(rule('MG016', file, s.line, s.sql));
   }
   return findings;
 }

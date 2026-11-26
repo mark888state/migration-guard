@@ -115,3 +115,7 @@ test('excludes exact files and all files under excluded directories', async () =
 test('flags DROP SCHEMA as destructive', () => {
   assert.ok(codes('DROP SCHEMA legacy CASCADE;').includes('MG015'));
 });
+
+test('flags DROP DATABASE as destructive', () => {
+  assert.ok(codes('DROP DATABASE old_production;').includes('MG016'));
+});

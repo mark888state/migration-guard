@@ -111,3 +111,7 @@ test('excludes exact files and all files under excluded directories', async () =
   assert.equal(isExcluded('archive.sql', ['archive.sql']), true);
   assert.equal(isExcluded('current/001.sql', ['legacy']), false);
 });
+
+test('flags DROP SCHEMA as destructive', () => {
+  assert.ok(codes('DROP SCHEMA legacy CASCADE;').includes('MG015'));
+});

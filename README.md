@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: mark888state/migration-guard@v0.1.8
+      - uses: mark888state/migration-guard@v0.1.9
         with:
           path: db/migrations
           postgres-major: '14'
@@ -69,6 +69,7 @@ The action runs locally from its checked-out action source and does not require 
 | MG012 | `RENAME COLUMN` | Add/dual-write/backfill/switch/drop |
 | MG013 | `DROP TABLE` | Remove only after all application versions stop using it |
 | MG014 | `TRUNCATE` | Treat as destructive data removal and review explicitly |
+| MG015 | `DROP SCHEMA` | Audit dependent objects before dropping a schema |
 
 Rules are intentionally conservative. Review findings in the context of table size, PostgreSQL version, lock timeout, transaction boundaries, and application deployment strategy.
 

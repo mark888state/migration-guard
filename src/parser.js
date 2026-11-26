@@ -84,5 +84,6 @@ export function parseStatement(statement) {
   if (dropIndex) return { ...statement, kind: 'drop-index', concurrent: Boolean(dropIndex[1]) };
   if (/^DROP\s+TABLE\b/i.test(sql)) return { ...statement, kind: 'drop-table' };
   if (/^TRUNCATE\b/i.test(sql)) return { ...statement, kind: 'truncate-table' };
+  if (/^DROP\s+SCHEMA\b/i.test(sql)) return { ...statement, kind: 'drop-schema' };
   return { ...statement, kind: 'other' };
 }

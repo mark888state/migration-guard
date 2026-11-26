@@ -42,7 +42,7 @@ export function analyze(sql, file = '<input>', options = {}) {
           validatedChecks.add(`${table}:${checkedColumn}`);
         }
         if (/^ADD\s+COLUMN\b/i.test(action)) {
-          const col = action.match(/^ADD\s+COLUMN\s+("?[\w$]+"?)/i)?.[1];
+          const col = action.match(/^ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?("?[\w$]+"?)/i)?.[1];
           if (col && /\bNOT\s+NULL\b/i.test(action) && !/\bDEFAULT\b/i.test(action)) findings.push(rule('MG001', file, s.line, `${s.table}.${col}`));
           const def = action.match(/\bDEFAULT\s+(.+)$/i)?.[1] || '';
           if (def && major < 11 && (!largeTables.length || largeTables.includes(table))) findings.push(rule('MG002', file, s.line, `${s.table}.${col || 'column'} (PostgreSQL ${major})`));

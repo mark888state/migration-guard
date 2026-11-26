@@ -64,3 +64,7 @@ test('ADD CONSTRAINT is not mistaken for ADD COLUMN', () => {
   assert.ok(findings.some(f => f.rule === 'MG008'));
   assert.ok(!findings.some(f => ['MG001', 'MG002', 'MG003'].includes(f.rule)));
 });
+
+test('supports ADD COLUMN IF NOT EXISTS', () => {
+  assert.ok(codes('ALTER TABLE users ADD COLUMN IF NOT EXISTS email text NOT NULL;').includes('MG001'));
+});

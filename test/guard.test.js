@@ -98,3 +98,9 @@ test('summarizes findings by rule for structured output', async () => {
   assert.equal(summary.byRule.MG005, 1);
   assert.equal(summary.byRule.MG013, 0);
 });
+
+test('renders GitHub Actions annotations with escaped metadata', async () => {
+  const { renderAnnotation } = await import('../src/github.js');
+  const result = renderAnnotation({ file: 'db/a:b,c.sql', line: 7, rule: 'MG001', title: 'Unsafe DDL', detail: 'x:y,z' });
+  assert.equal(result, '::error file=db/a%3Ab%2Cc.sql,line=7::MG001 Unsafe DDL — x:y,z');
+});

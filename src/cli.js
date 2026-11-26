@@ -3,6 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { analyze, ruleCatalog } from './rules.js';
 import { summarizeFindings } from './summary.js';
+import { renderAnnotation } from './github.js';
 
 function args(argv) {
   const out = { path: 'migrations', postgresMajor: 14, largeTables: [], json: false, version: false };
@@ -11,6 +12,7 @@ function args(argv) {
     if (key === '--help' || key === '-h') out.help = true;
     else if (key === '--version') out.version = true;
     else if (key === '--json') out.json = true;
+    else if (key === '--github-annotations') out.githubAnnotations = true;
     else if (key === '--path' && argv[i + 1]) out.path = argv[++i];
     else if (key === '--postgres-major' && argv[i + 1]) out.postgresMajor = Number(argv[++i]);
     else if (key === '--large-tables') out.largeTables = (argv[++i] || '').split(',').map(value => value.trim()).filter(Boolean);
@@ -50,6 +52,7 @@ async function main() {
   else if (!findings.length) console.log(`migration-guard: ${files.length} SQL file(s), no unsafe patterns found.`);
   else {
     for (const f of findings) {
+      if (options.githubAnnotations) console.log(renderAnnotation(f));
       console.error(`✖ ${f.file}:${f.line} ${f.rule} ${f.title}`);
       if (f.detail) console.error(`  ${f.detail}`);
       console.error(`  Fix: ${f.fix}`);

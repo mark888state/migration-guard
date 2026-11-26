@@ -14,6 +14,10 @@ inputs:
     description: Optional comma-separated table names for pre-11 default rewrite checks.
     required: false
     default: ''
+  github-annotations:
+    description: Emit inline GitHub Actions annotations for findings.
+    required: false
+    default: 'false'
 runs:
   using: composite
   steps:
@@ -22,4 +26,8 @@ runs:
         INPUT_PATH: ${{ inputs.path }}
         POSTGRES_MAJOR: ${{ inputs.postgres-major }}
         LARGE_TABLES: ${{ inputs.large-tables }}
-      run: node "$GITHUB_ACTION_PATH/src/cli.js" --path "$INPUT_PATH" --postgres-major "$POSTGRES_MAJOR" --large-tables "$LARGE_TABLES"
+        GITHUB_ANNOTATIONS: ${{ inputs.github-annotations }}
+      run: |
+        args=(--path "$INPUT_PATH" --postgres-major "$POSTGRES_MAJOR" --large-tables "$LARGE_TABLES")
+        if [[ "$GITHUB_ANNOTATIONS" == "true" ]]; then args+=(--github-annotations); fi
+        node "$GITHUB_ACTION_PATH/src/cli.js" "${args[@]}"

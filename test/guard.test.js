@@ -58,3 +58,9 @@ test('flags destructive compatibility changes', () => {
 test('does not flag a safe concurrent index', () => {
   assert.deepEqual(codes('CREATE INDEX CONCURRENTLY ix_users_email ON users(email);'), []);
 });
+
+test('ADD CONSTRAINT is not mistaken for ADD COLUMN', () => {
+  const findings = analyze('ALTER TABLE users ADD CONSTRAINT email_nn CHECK (email IS NOT NULL);');
+  assert.ok(findings.some(f => f.rule === 'MG008'));
+  assert.ok(!findings.some(f => ['MG001', 'MG002', 'MG003'].includes(f.rule)));
+});

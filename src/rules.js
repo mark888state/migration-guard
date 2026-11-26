@@ -41,16 +41,16 @@ export function analyze(sql, file = '<input>', options = {}) {
           const checkedColumn = pendingChecks.get(table).get(id(validation[1]));
           validatedChecks.add(`${table}:${checkedColumn}`);
         }
-        if (/^ADD\s+(?:COLUMN\s+)?/i.test(action)) {
-          const col = action.match(/^ADD\s+(?:COLUMN\s+)?("?[\w$]+"?)/i)?.[1];
+        if (/^ADD\s+COLUMN\b/i.test(action)) {
+          const col = action.match(/^ADD\s+COLUMN\s+("?[\w$]+"?)/i)?.[1];
           if (col && /\bNOT\s+NULL\b/i.test(action) && !/\bDEFAULT\b/i.test(action)) findings.push(rule('MG001', file, s.line, `${s.table}.${col}`));
           const def = action.match(/\bDEFAULT\s+(.+)$/i)?.[1] || '';
           if (def && major < 11 && (!largeTables.length || largeTables.includes(table))) findings.push(rule('MG002', file, s.line, `${s.table}.${col || 'column'} (PostgreSQL ${major})`));
           else if (def && volatile.test(def)) findings.push(rule('MG003', file, s.line, `${s.table}.${col || 'column'}`));
-          if (/^ADD\s+(?:CONSTRAINT\s+\S+\s+)?FOREIGN\s+KEY\b/i.test(action) && !/\bNOT\s+VALID\b/i.test(action)) findings.push(rule('MG007', file, s.line, s.table));
-          if (/^ADD\s+(?:CONSTRAINT\s+\S+\s+)?CHECK\b/i.test(action) && !/\bNOT\s+VALID\b/i.test(action)) findings.push(rule('MG008', file, s.line, s.table));
-          if (/^ADD\s+(?:CONSTRAINT\s+\S+\s+)?PRIMARY\s+KEY\b/i.test(action)) findings.push(rule('MG010', file, s.line, s.table));
         }
+        if (/^ADD\s+(?:CONSTRAINT\s+\S+\s+)?FOREIGN\s+KEY\b/i.test(action) && !/\bNOT\s+VALID\b/i.test(action)) findings.push(rule('MG007', file, s.line, s.table));
+        if (/^ADD\s+(?:CONSTRAINT\s+\S+\s+)?CHECK\b/i.test(action) && !/\bNOT\s+VALID\b/i.test(action)) findings.push(rule('MG008', file, s.line, s.table));
+        if (/^ADD\s+(?:CONSTRAINT\s+\S+\s+)?PRIMARY\s+KEY\b/i.test(action)) findings.push(rule('MG010', file, s.line, s.table));
         const setNN = action.match(/^ALTER\s+COLUMN\s+("?[\w$]+"?)\s+SET\s+NOT\s+NULL/i);
         if (setNN) {
           const col = id(setNN[1]);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyze } from '../src/rules.js';
+import { analyze, ruleCatalog } from '../src/rules.js';
 import { splitStatements } from '../src/parser.js';
 
 const codes = (sql, options) => analyze(sql, 'fixture.sql', options).map(f => f.rule);
@@ -86,7 +86,7 @@ import { readFileSync } from 'node:fs';
 test('--version prints package.json version without scanning migrations', () => {
   const result = spawnSync(process.execPath, [new URL('../src/cli.js', import.meta.url).pathname, '--version'], { encoding: 'utf8' });
   const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
-  assert.equal(result.status, 0);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.equal(result.stdout.trim(), pkg.version);
 });
 

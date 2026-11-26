@@ -79,3 +79,13 @@ test('flags TRUNCATE as a destructive data operation', () => {
   assert.ok(codes('TRUNCATE TABLE users;').includes('MG014'));
   assert.ok(codes('TRUNCATE users;').includes('MG014'));
 });
+
+import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+
+test('--version prints package.json version without scanning migrations', () => {
+  const result = spawnSync(process.execPath, [new URL('../src/cli.js', import.meta.url).pathname, '--version'], { encoding: 'utf8' });
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.equal(result.status, 0);
+  assert.equal(result.stdout.trim(), pkg.version);
+});

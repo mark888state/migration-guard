@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: mark888state/migration-guard@v0.1.4
+      - uses: mark888state/migration-guard@v0.1.5
         with:
           path: db/migrations
           postgres-major: '14'
@@ -47,6 +47,7 @@ The action runs locally from its checked-out action source and does not require 
 | `--postgres-major` | `14` | PostgreSQL major version used for default-column checks |
 | `--large-tables` | empty | Comma-separated table names to scope the pre-11 default-rewrite rule; empty means all tables |
 | `--json` | off | Emit machine-readable findings |
+| `--version` | off | Print the installed package version and exit |
 
 ## Rules
 

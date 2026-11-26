@@ -4,10 +4,11 @@ import path from 'node:path';
 import { analyze, ruleCatalog } from './rules.js';
 
 function args(argv) {
-  const out = { path: 'migrations', postgresMajor: 14, largeTables: [], json: false };
+  const out = { path: 'migrations', postgresMajor: 14, largeTables: [], json: false, version: false };
   for (let i = 0; i < argv.length; i++) {
     const key = argv[i];
     if (key === '--help' || key === '-h') out.help = true;
+    else if (key === '--version') out.version = true;
     else if (key === '--json') out.json = true;
     else if (key === '--path' && argv[i + 1]) out.path = argv[++i];
     else if (key === '--postgres-major' && argv[i + 1]) out.postgresMajor = Number(argv[++i]);
@@ -27,8 +28,13 @@ async function sqlFiles(dir) {
 }
 async function main() {
   const options = args(process.argv.slice(2));
+  if (options.version) {
+    const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+    console.log(pkg.version);
+    return;
+  }
   if (options.help) {
-    console.log('Usage: migration-guard [--path migrations] [--postgres-major 14] [--large-tables users,orders] [--json]');
+    console.log('Usage: migration-guard [--path migrations] [--postgres-major 14] [--large-tables users,orders] [--json] [--version]');
     console.log(`Rules: ${ruleCatalog.map(r => r.code).join(', ')}`);
     return;
   }

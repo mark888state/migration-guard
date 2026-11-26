@@ -83,5 +83,6 @@ export function parseStatement(statement) {
   const dropIndex = sql.match(/^DROP\s+INDEX\s+(CONCURRENTLY\s+)?/i);
   if (dropIndex) return { ...statement, kind: 'drop-index', concurrent: Boolean(dropIndex[1]) };
   if (/^DROP\s+TABLE\b/i.test(sql)) return { ...statement, kind: 'drop-table' };
+  if (/^TRUNCATE\b/i.test(sql)) return { ...statement, kind: 'truncate-table' };
   return { ...statement, kind: 'other' };
 }

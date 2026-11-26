@@ -13,7 +13,8 @@ const rules = [
   ['MG010', 'ADD PRIMARY KEY may scan and lock the table', 'Create a UNIQUE INDEX CONCURRENTLY, then attach it as a constraint.'],
   ['MG011', 'DROP COLUMN breaks older application versions', 'Deploy code that no longer reads/writes the column before dropping it.'],
   ['MG012', 'RENAME COLUMN breaks older application versions', 'Add a new column, dual-write, backfill, switch reads, then remove the old column.'],
-  ['MG013', 'DROP TABLE is destructive and blocks old application versions', 'Use an expand/contract rollout and drop only after all consumers are upgraded.']
+  ['MG013', 'DROP TABLE is destructive and blocks old application versions', 'Use an expand/contract rollout and drop only after all consumers are upgraded.'],
+  ['MG014', 'TRUNCATE removes every row from a table', 'Treat TRUNCATE as a destructive data operation; require an explicit backup and rollout review.']
 ];
 const volatile = /\b(?:clock_timestamp|timeofday|random|nextval|gen_random_uuid|uuid_generate_v[1-7])\s*\(/i;
 const id = value => value?.replaceAll('"', '').toLowerCase();
@@ -66,6 +67,7 @@ export function analyze(sql, file = '<input>', options = {}) {
     if (s.kind === 'create-index' && !s.concurrent) findings.push(rule('MG005', file, s.line, s.table));
     if (s.kind === 'drop-index' && !s.concurrent) findings.push(rule('MG006', file, s.line));
     if (s.kind === 'drop-table') findings.push(rule('MG013', file, s.line, s.sql));
+    if (s.kind === 'truncate-table') findings.push(rule('MG014', file, s.line, s.sql));
   }
   return findings;
 }

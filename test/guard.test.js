@@ -74,3 +74,8 @@ test('preserves schema-qualified table names in finding details', () => {
   assert.equal(finding.detail, 'public.users.email');
   assert.deepEqual(codes("ALTER TABLE public.users ADD COLUMN status text DEFAULT 'new';", { postgresMajor: 10, largeTables: ['users'] }), ['MG002']);
 });
+
+test('flags TRUNCATE as a destructive data operation', () => {
+  assert.ok(codes('TRUNCATE TABLE users;').includes('MG014'));
+  assert.ok(codes('TRUNCATE users;').includes('MG014'));
+});

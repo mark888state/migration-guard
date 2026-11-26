@@ -4,9 +4,10 @@ import path from 'node:path';
 import { analyze, ruleCatalog } from './rules.js';
 import { summarizeFindings } from './summary.js';
 import { renderAnnotation } from './github.js';
+import { isExcluded } from './file-filter.js';
 
 function args(argv) {
-  const out = { path: 'migrations', postgresMajor: 14, largeTables: [], json: false, version: false };
+  const out = { path: 'migrations', postgresMajor: 14, largeTables: [], exclude: [], json: false, version: false };
   for (let i = 0; i < argv.length; i++) {
     const key = argv[i];
     if (key === '--help' || key === '-h') out.help = true;
@@ -16,6 +17,7 @@ function args(argv) {
     else if (key === '--path' && argv[i + 1]) out.path = argv[++i];
     else if (key === '--postgres-major' && argv[i + 1]) out.postgresMajor = Number(argv[++i]);
     else if (key === '--large-tables') out.largeTables = (argv[++i] || '').split(',').map(value => value.trim()).filter(Boolean);
+    else if (key === '--exclude' && argv[i + 1]) out.exclude.push(...argv[++i].split(',').map(value => value.trim()).filter(Boolean));
     else throw new Error(`Unknown option or missing value: ${key}`);
   }
   if (!Number.isInteger(out.postgresMajor) || out.postgresMajor < 9) throw new Error('--postgres-major must be an integer >= 9');
@@ -37,11 +39,13 @@ async function main() {
     return;
   }
   if (options.help) {
-    console.log('Usage: migration-guard [--path migrations] [--postgres-major 14] [--large-tables users,orders] [--json] [--version]');
+    console.log('Usage: migration-guard [--path migrations] [--postgres-major 14] [--large-tables users,orders] [--json] [--version] [--exclude path-or-directory,...]');
     console.log(`Rules: ${ruleCatalog.map(r => r.code).join(', ')}`);
     return;
   }
-  const files = await sqlFiles(path.resolve(options.path));
+  const root = path.resolve(options.path);
+  const discovered = await sqlFiles(root);
+  const files = discovered.filter(file => !isExcluded(path.relative(root, file), options.exclude));
   if (!files.length) { console.error(`No .sql files found under ${options.path}`); process.exitCode = 2; return; }
   const findings = [];
   for (const file of files) {

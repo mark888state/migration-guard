@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: mark888state/migration-guard@v0.1.7
+      - uses: mark888state/migration-guard@v0.1.8
         with:
           path: db/migrations
           postgres-major: '14'
@@ -49,6 +49,7 @@ The action runs locally from its checked-out action source and does not require 
 | `--json` | off | Emit machine-readable findings |
 | `--version` | off | Print the installed package version and exit |
 | `--github-annotations` | off | Emit inline error annotations in GitHub Actions |
+| `--exclude` | empty | Comma-separated relative file paths or directories to skip |
 
 ## Rules
 

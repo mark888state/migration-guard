@@ -18,6 +18,10 @@ inputs:
     description: Emit inline GitHub Actions annotations for findings.
     required: false
     default: 'false'
+  exclude:
+    description: Comma-separated relative SQL file paths or directories to skip.
+    required: false
+    default: ''
 runs:
   using: composite
   steps:
@@ -27,7 +31,9 @@ runs:
         POSTGRES_MAJOR: ${{ inputs.postgres-major }}
         LARGE_TABLES: ${{ inputs.large-tables }}
         GITHUB_ANNOTATIONS: ${{ inputs.github-annotations }}
+        EXCLUDE: ${{ inputs.exclude }}
       run: |
         args=(--path "$INPUT_PATH" --postgres-major "$POSTGRES_MAJOR" --large-tables "$LARGE_TABLES")
         if [[ "$GITHUB_ANNOTATIONS" == "true" ]]; then args+=(--github-annotations); fi
+        if [[ -n "$EXCLUDE" ]]; then args+=(--exclude "$EXCLUDE"); fi
         node "$GITHUB_ACTION_PATH/src/cli.js" "${args[@]}"

@@ -104,3 +104,10 @@ test('renders GitHub Actions annotations with escaped metadata', async () => {
   const result = renderAnnotation({ file: 'db/a:b,c.sql', line: 7, rule: 'MG001', title: 'Unsafe DDL', detail: 'x:y,z' });
   assert.equal(result, '::error file=db/a%3Ab%2Cc.sql,line=7::MG001 Unsafe DDL — x:y,z');
 });
+
+test('excludes exact files and all files under excluded directories', async () => {
+  const { isExcluded } = await import('../src/file-filter.js');
+  assert.equal(isExcluded('legacy/001.sql', ['legacy']), true);
+  assert.equal(isExcluded('archive.sql', ['archive.sql']), true);
+  assert.equal(isExcluded('current/001.sql', ['legacy']), false);
+});
